@@ -505,12 +505,158 @@ const pageDescription = username
     });
   }
 
+  function displayStats(
+    username: string,
+    userTotal: number,
+    globalTotal: number,
+    percentage: number
+  ) {
+    // Update avatar
+    const avatarImg = document.getElementById(
+      "userAvatar"
+    ) as HTMLImageElement;
+    if (avatarImg) {
+      avatarImg.src = `https://images.hive.blog/u/${username}/avatar/medium`;
+    }
+
+    // Update page title
+    document.title = `@${username} - Ops by Hive`;
+
+    // Show content first
+    showContent();
+
+    // Start animation sequence
+    const timeline = gsap.timeline();
+
+    // 1. Animate avatar
+    timeline.to("#userAvatar", {
+      opacity: 1,
+      scale: 1,
+      duration: 0.6,
+      ease: "back.out(1.7)",
+    });
+
+    // 2. Animate username
+    timeline.to(
+      "#username",
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        ease: "power2.out",
+        onStart: () => {
+          const usernameEl = document.getElementById("username");
+          if (usernameEl) {
+            usernameEl.textContent = `@${username}`;
+            usernameEl.style.transform = "translateY(-10px)";
+          }
+        },
+      },
+      "-=0.2"
+    );
+
+    // 3. Animate user operations counter
+    timeline.add(() => {
+      const userOpsEl = document.getElementById("userOperations");
+      if (userOpsEl) {
+        animateCounter(userOpsEl, userTotal, 2);
+      }
+    }, "+=0.3");
+
+    // 4. Animate percentage
+    timeline.add(() => {
+      const percentageEl = document.getElementById("percentage");
+      if (percentageEl) {
+        animatePercentage(percentageEl, percentage);
+      }
+    }, "-=1");
+
+    // 5. Animate global total
+    timeline.add(() => {
+      const globalTotalEl = document.getElementById("globalTotal");
+      if (globalTotalEl) {
+        const obj = { value: 0 };
+        gsap.to(obj, {
+          value: globalTotal,
+          duration: 1.8,
+          ease: "power2.out",
+          onUpdate: () => {
+            globalTotalEl.textContent = formatToBillions(obj.value);
+          },
+          onComplete: () => {
+            globalTotalEl.classList.add("achievement-bounce");
+            globalTotalEl.classList.add("achievement-glow");
+            setTimeout(() => {
+              globalTotalEl.classList.remove("achievement-bounce");
+              globalTotalEl.classList.remove("achievement-glow");
+            }, 1500);
+          },
+        });
+      }
+    }, "-=1.2");
+
+    // 6. Animate Hive logo
+    timeline.to("#hiveLogo", {
+      opacity: 0.8,
+      duration: 0.8,
+      ease: "power2.out",
+    }, "-=0.5");
+  }
+
+  const CACHE_KEY = "hive_user_stats_cache";
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+  interface CachedUserStats {
+    username: string;
+    userTotal: number;
+    globalTotal: number;
+    percentage: number;
+    timestamp: number;
+  }
+
+  function getCachedStats(username: string): CachedUserStats | null {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (!cached) return null;
+
+      const data: CachedUserStats = JSON.parse(cached);
+      const now = Date.now();
+
+      // Verificar si es el mismo usuario y no ha expirado
+      if (
+        data.username === username &&
+        now - data.timestamp < CACHE_DURATION
+      ) {
+        return data;
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  function setCachedStats(stats: CachedUserStats) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(stats));
+    } catch {
+      // Silently fail if localStorage is not available
+    }
+  }
+
   async function loadUserStats() {
     const url = new URL(window.location.href);
     const username = url.searchParams.get("u");
 
     if (!username) {
       showError();
+      return;
+    }
+
+    // Intentar cargar desde cache primero
+    const cachedData = getCachedStats(username);
+    if (cachedData) {
+      displayStats(username, cachedData.userTotal, cachedData.globalTotal, cachedData.percentage);
       return;
     }
 
@@ -527,96 +673,16 @@ const pageDescription = username
       const userTotal = userStats.total_operations;
       const percentage = (userTotal / globalTotal) * 100;
 
-      // Update avatar
-      const avatarImg = document.getElementById(
-        "userAvatar"
-      ) as HTMLImageElement;
-      if (avatarImg) {
-        avatarImg.src = `https://images.hive.blog/u/${username}/avatar/medium`;
-      }
-
-      // Update page title
-      document.title = `@${username} - Ops by Hive`;
-
-      // Show content first
-      showContent();
-
-      // Start animation sequence
-      const timeline = gsap.timeline();
-
-      // 1. Animate avatar
-      timeline.to("#userAvatar", {
-        opacity: 1,
-        scale: 1,
-        duration: 0.6,
-        ease: "back.out(1.7)",
+      // Guardar en cache
+      setCachedStats({
+        username,
+        userTotal,
+        globalTotal,
+        percentage,
+        timestamp: Date.now(),
       });
 
-      // 2. Animate username
-      timeline.to(
-        "#username",
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: "power2.out",
-          onStart: () => {
-            const usernameEl = document.getElementById("username");
-            if (usernameEl) {
-              usernameEl.textContent = `@${username}`;
-              usernameEl.style.transform = "translateY(-10px)";
-            }
-          },
-        },
-        "-=0.2"
-      );
-
-      // 3. Animate user operations counter
-      timeline.add(() => {
-        const userOpsEl = document.getElementById("userOperations");
-        if (userOpsEl) {
-          animateCounter(userOpsEl, userTotal, 2);
-        }
-      }, "+=0.3");
-
-      // 4. Animate percentage
-      timeline.add(() => {
-        const percentageEl = document.getElementById("percentage");
-        if (percentageEl) {
-          animatePercentage(percentageEl, percentage);
-        }
-      }, "-=1");
-
-      // 5. Animate global total
-      timeline.add(() => {
-        const globalTotalEl = document.getElementById("globalTotal");
-        if (globalTotalEl) {
-          const obj = { value: 0 };
-          gsap.to(obj, {
-            value: globalTotal,
-            duration: 1.8,
-            ease: "power2.out",
-            onUpdate: () => {
-              globalTotalEl.textContent = formatToBillions(obj.value);
-            },
-            onComplete: () => {
-              globalTotalEl.classList.add("achievement-bounce");
-              globalTotalEl.classList.add("achievement-glow");
-              setTimeout(() => {
-                globalTotalEl.classList.remove("achievement-bounce");
-                globalTotalEl.classList.remove("achievement-glow");
-              }, 1500);
-            },
-          });
-        }
-      }, "-=1.2");
-
-      // 6. Animate Hive logo
-      timeline.to("#hiveLogo", {
-        opacity: 0.8,
-        duration: 0.8,
-        ease: "power2.out",
-      }, "-=0.5");
+      displayStats(username, userTotal, globalTotal, percentage);
     } catch (error) {
       console.error("Error loading user stats:", error);
       showError();
