@@ -1,0 +1,48 @@
+---
+import "@fontsource-variable/sora";
+import "@/styles/global.css";
+import { getLangFromUrl } from "@/i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+
+interface Props {
+	title?: string;
+	description?: string;
+	ogImage?: string;
+}
+
+const {
+	title = "Ops by Hive",
+	description = "Discover your blockchain activity on Hive. See your total operations and how you rank among the most active users in the network's history.",
+	ogImage,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang} class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={Astro.url} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    {ogImage && <meta property="twitter:image" content={ogImage} />}
+  </head>
+  <body class="m-0 p-0 w-full h-full bg-black text-white font-sans">
+    <slot />
+  </body>
+</html>

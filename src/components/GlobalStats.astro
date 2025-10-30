@@ -1,0 +1,151 @@
+---
+import { getLangFromUrl, useTranslations } from "@/i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<div class="text-center space-y-2">
+  <p
+    class="font-sans text-[clamp(0.75rem,2vw,0.875rem)] font-medium text-white/40 uppercase tracking-[0.2em] m-0 opacity-0"
+    id="statsLabel"
+  >
+    {t("home.totalOperationsLabel")}
+  </p>
+  <div
+    class="font-sans text-[clamp(2.5rem,12vw,6rem)] font-black text-red-500 m-0 leading-[0.9] tracking-[-0.04em]"
+    id="totalOps"
+  >
+    0
+  </div>
+  <p
+    class="font-sans text-[clamp(0.75rem,2vw,0.875rem)] font-light text-white/30 tracking-[0.05em] m-0 pt-1 opacity-0"
+    id="statsSubtitle"
+  >
+    {t("home.allTimeOperations")}
+  </p>
+</div>
+
+<style>
+  @keyframes achievementBounce {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.15);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes achievementGlow {
+    0%,
+    100% {
+      filter: drop-shadow(0 0 10px rgba(227, 19, 55, 0.5));
+    }
+    50% {
+      filter: drop-shadow(0 0 30px rgba(227, 19, 55, 1));
+    }
+  }
+
+  @keyframes pulseScale {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  .achievement-bounce {
+    animation: achievementBounce 0.8s ease-out;
+  }
+
+  .achievement-glow {
+    animation: achievementGlow 2s ease-in-out;
+  }
+
+  .pulse-scale {
+    animation: pulseScale 2s ease-in-out infinite;
+  }
+</style>
+
+<script>
+  import { getGlobalTransactionStats } from "../utils/api";
+  import { gsap } from "gsap";
+
+  async function loadGlobalStats() {
+    const container = document.getElementById("totalOps");
+    const label = document.getElementById("statsLabel");
+    const subtitle = document.getElementById("statsSubtitle");
+
+    if (!container) return;
+
+    try {
+      const stats = await getGlobalTransactionStats();
+
+      // Sum all yearly transactions
+      const totalOps = stats.reduce((sum, year) => sum + year.trx_count, 0);
+
+      // Animation sequence
+      const timeline = gsap.timeline();
+
+      // 1. Fade in label
+      timeline.to(label, {
+        opacity: 1,
+        duration: 0.6,
+        ease: "power2.out",
+      });
+
+      // 2. Animate counter
+      timeline.add(() => {
+        const obj = { value: 0 };
+        gsap.to(obj, {
+          value: totalOps,
+          duration: 2.5,
+          ease: "power2.out",
+          onUpdate: () => {
+            container.textContent = Math.floor(obj.value).toLocaleString(
+              "en-US"
+            );
+          },
+          onComplete: () => {
+            // Achievement effect
+            container.classList.add("achievement-bounce");
+            container.classList.add("achievement-glow");
+
+            setTimeout(() => {
+              container.classList.remove("achievement-bounce");
+              container.classList.remove("achievement-glow");
+              // Add subtle pulse after achievement
+              container.classList.add("pulse-scale");
+            }, 2000);
+          },
+        });
+      }, "-=0.3");
+
+      // 3. Fade in subtitle
+      timeline.to(
+        subtitle,
+        {
+          opacity: 1,
+          duration: 0.6,
+          ease: "power2.out",
+        },
+        "-=1.5"
+      );
+    } catch (error) {
+      console.error("Error loading global stats:", error);
+      container.innerHTML = '<span class="error">Unable to load data</span>';
+    }
+  }
+
+  // Load stats when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadGlobalStats);
+  } else {
+    loadGlobalStats();
+  }
+</script>

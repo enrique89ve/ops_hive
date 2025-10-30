@@ -1,0 +1,644 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import UserNavbar from "@/components/UserNavbar.astro";
+import UsernameModal from "@/components/UsernameModal.astro";
+import { getLangFromUrl, useTranslations } from "@/i18n/utils";
+import hiveLogo from "@/assets/logo.svg";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// Get username from URL for OG image
+const username = Astro.url.searchParams.get("u");
+const ogImage = username
+	? `${Astro.url.origin}/api/og/${username}.png`
+	: undefined;
+const pageTitle = username ? `@${username} - Ops by Hive` : "Ops by Hive";
+const pageDescription = username
+	? `Mira las estadísticas de actividad en Hive de @${username}`
+	: "Descubre tu actividad en la blockchain de Hive";
+---
+
+<Layout title={pageTitle} description={pageDescription} ogImage={ogImage}>
+  <UserNavbar />
+  <div class="min-h-screen bg-black p-6 md:p-8 lg:p-12 pt-32 md:pt-36 lg:pt-40">
+    <div class="max-w-lg mx-auto h-full flex flex-col justify-center">
+      <!-- Loading State -->
+      <div id="loadingState" class="text-center py-20">
+        <div
+          class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"
+        >
+        </div>
+        <p class="font-sans text-white/40 text-lg mt-4">
+          {t("user.loading")}
+        </p>
+      </div>
+
+      <!-- Error State -->
+      <div id="errorState" class="hidden text-center py-20">
+        <p class="font-sans text-red-500 text-xl mb-8">{t("user.notFound")}</p>
+      </div>
+
+      <!-- Content State -->
+      <div id="contentState" class="hidden">
+        <!-- Share Button -->
+        <div class="flex justify-end mb-4 relative">
+          <button
+            id="shareBtn"
+            class="group relative flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 rounded-xl transition-all duration-300 hover:shadow-[0_0_20px_rgba(227,19,55,0.3)]"
+            title="Compartir en redes sociales"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-5 h-5 text-red-500 transition-transform group-hover:scale-110"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+              ></path>
+            </svg>
+            <span class="font-sans text-sm font-medium text-white/90">
+              {t("user.share")}
+            </span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 text-red-500 transition-transform duration-200"
+              id="dropdownIcon"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div
+            id="shareMenu"
+            class="hidden absolute right-0 top-full mt-2 w-56 bg-black/95 backdrop-blur-sm border border-red-500/30 rounded-xl shadow-[0_0_30px_rgba(227,19,55,0.2)] overflow-hidden z-50"
+          >
+            <button
+              id="copyBtn"
+              class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-red-500/10 transition-colors duration-200 border-b border-red-500/20"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5 text-red-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                ></path>
+              </svg>
+              <div>
+                <p class="font-sans text-sm font-medium text-white">
+                  {t("user.copyImage")}
+                </p>
+                <p class="font-sans text-xs text-white/60">
+                  {t("user.copyImageDesc")}
+                </p>
+              </div>
+            </button>
+
+            <button
+              id="downloadBtn"
+              class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-red-500/10 transition-colors duration-200"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5 text-red-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                ></path>
+              </svg>
+              <div>
+                <p class="font-sans text-sm font-medium text-white">
+                  {t("user.downloadImage")}
+                </p>
+                <p class="font-sans text-xs text-white/60">
+                  {t("user.downloadImageDesc")}
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- User Stats Card Container with Black Background -->
+        <div
+          id="statsCard"
+          class="relative bg-black p-0"
+          style="aspect-ratio: 4/5;"
+        >
+          <!-- Gradient overlay on black background -->
+          <div
+            class="absolute inset-0 bg-linear-to-br from-transparent via-red-500/10 to-transparent pointer-events-none"
+          >
+          </div>
+
+          <div
+            class="relative overflow-hidden p-6 md:p-8 border border-red-500/30 shadow-[0_0_60px_rgba(227,19,55,0.2)] flex h-full"
+          >
+            <!-- Decorative gradient overlay -->
+            <div
+              class="absolute inset-0 bg-linear-to-tr from-red-500/5 via-transparent to-red-500/5 pointer-events-none"
+            >
+            </div>
+
+            <!-- Content -->
+            <div class="relative z-10 flex flex-col justify-between h-full w-full py-3">
+              <div class="space-y-4">
+              <!-- Avatar & Username -->
+              <div class="text-center">
+                <!-- Avatar -->
+                <div class="flex justify-center mb-2">
+                  <img
+                    id="userAvatar"
+                    alt="User avatar"
+                    class="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-red-500/30 shadow-[0_0_20px_rgba(227,19,55,0.3)] object-cover opacity-0"
+                  />
+                </div>
+                <h2
+                  id="username"
+                  class="font-sans text-[clamp(1.25rem,4vw,2rem)] font-black text-white m-0 tracking-tight opacity-0"
+                >
+                </h2>
+              </div>
+
+              <!-- Divider -->
+              <div
+                class="h-px bg-linear-to-r from-transparent via-red-500/30 to-transparent"
+              >
+              </div>
+
+              <!-- Inspirational Message 1 -->
+              <div class="text-center">
+                <p
+                  class="font-sans text-[clamp(0.8rem,2.2vw,1rem)] font-medium text-white/80 mb-1 leading-relaxed"
+                >
+                  {t("user.totalOperations")}
+                </p>
+                <p
+                  id="userOperations"
+                  class="font-sans text-[clamp(1.5rem,5vw,2.25rem)] font-black text-red-500 m-0 leading-none tracking-tight min-h-10"
+                >
+                  0
+                </p>
+              </div>
+
+              <!-- Divider -->
+              <div
+                class="h-px bg-linear-to-r from-transparent via-red-500/30 to-transparent"
+              >
+              </div>
+
+              <!-- Inspirational Message 2 -->
+              <div class="text-center">
+                <p
+                  class="font-sans text-[clamp(0.8rem,2.2vw,1rem)] font-medium text-white/80 mb-1 leading-relaxed"
+                >
+                  {t("user.partOf")}
+                </p>
+                <p
+                  id="percentage"
+                  class="font-sans text-[clamp(1.25rem,4.5vw,2rem)] font-black text-red-500 m-0 leading-none min-h-8"
+                >
+                  0%
+                </p>
+                <p
+                  class="font-sans text-[clamp(0.7rem,1.8vw,0.8rem)] font-medium text-white/70 mt-1"
+                >
+                  {t("user.mostActive")}
+                </p>
+              </div>
+
+              <!-- Divider -->
+              <div
+                class="h-px bg-linear-to-r from-transparent via-red-500/30 to-transparent"
+              >
+              </div>
+
+              <!-- Global Total (inspirational) -->
+              <div class="text-center bg-red-500/5 rounded-2xl py-2 px-4">
+                <p
+                  class="font-sans text-[clamp(0.7rem,1.8vw,0.8rem)] font-medium text-white/80 mb-1 leading-relaxed"
+                >
+                  {t("user.hiveExceeds")}
+                </p>
+                <p
+                  id="globalTotal"
+                  class="font-sans text-[clamp(1.25rem,4.5vw,2rem)] font-black text-red-500 m-0 leading-none tracking-tight min-h-8"
+                >
+                  0B
+                </p>
+                <p
+                  class="font-sans text-[clamp(0.6rem,1.4vw,0.7rem)] font-medium text-white/60 mt-1"
+                >
+                  {t("user.operations")}
+                </p>
+              </div>
+              </div>
+
+              <!-- Hive Logo -->
+              <div id="hiveLogo" class="flex justify-center opacity-0">
+                <img
+                  src={hiveLogo.src}
+                  alt="Hive"
+                  class="h-5 md:h-6 w-auto"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <UsernameModal />
+</Layout>
+
+<style>
+  @keyframes achievementBounce {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes achievementGlow {
+    0%,
+    100% {
+      filter: drop-shadow(0 0 8px rgba(227, 19, 55, 0.4));
+    }
+    50% {
+      filter: drop-shadow(0 0 20px rgba(227, 19, 55, 0.8));
+    }
+  }
+
+  .achievement-bounce {
+    animation: achievementBounce 0.6s ease-out;
+  }
+
+  .achievement-glow {
+    animation: achievementGlow 1.5s ease-in-out;
+  }
+</style>
+
+<script>
+  import { getGlobalTransactionStats, getUserOperations } from "@/utils/api";
+  import { gsap } from "gsap";
+  import {
+    captureElementAsImage,
+    copyImageToClipboard,
+    downloadImage,
+    ImageFormat,
+  } from "@/utils/imageCapture";
+  import { getLangFromUrl, useTranslations } from "@/i18n/utils";
+
+  const lang = getLangFromUrl(new URL(window.location.href));
+  const t = useTranslations(lang);
+
+  const loadingState = document.getElementById("loadingState");
+  const errorState = document.getElementById("errorState");
+  const contentState = document.getElementById("contentState");
+  const shareBtn = document.getElementById("shareBtn");
+  const shareMenu = document.getElementById("shareMenu");
+  const dropdownIcon = document.getElementById("dropdownIcon");
+  const copyBtn = document.getElementById("copyBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const statsCard = document.getElementById("statsCard");
+
+  // Toggle dropdown menu
+  shareBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    shareMenu?.classList.toggle("hidden");
+    dropdownIcon?.classList.toggle("rotate-180");
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!shareBtn?.contains(e.target as Node)) {
+      shareMenu?.classList.add("hidden");
+      dropdownIcon?.classList.remove("rotate-180");
+    }
+  });
+
+  function formatToBillions(num: number): string {
+    const billions = num / 1_000_000_000;
+    return `${billions.toFixed(2)}B`;
+  }
+
+  async function handleCopyImage() {
+    if (!copyBtn || !statsCard) return;
+
+    try {
+      const btnText = copyBtn.querySelector("p");
+      const originalText = btnText?.textContent || t("user.copyImage");
+      if (btnText) btnText.textContent = t("user.copying");
+
+      // Capturar imagen en formato PNG (requerido para clipboard)
+      const capture = await captureElementAsImage(statsCard, {
+        format: ImageFormat.PNG,
+        backgroundColor: "#000000",
+      });
+
+      // Copiar al portapapeles
+      const result = await copyImageToClipboard(capture.blob);
+
+      // Actualizar UI según resultado
+      if (btnText) {
+        switch (result.type) {
+          case "success":
+            btnText.textContent = t("user.copied");
+            break;
+          case "unsupported":
+            btnText.textContent = t("user.unsupported");
+            break;
+          case "error":
+            btnText.textContent = t("user.error");
+            break;
+        }
+      }
+
+      // Restaurar después de 2 segundos
+      setTimeout(() => {
+        if (btnText) btnText.textContent = originalText;
+        shareMenu?.classList.add("hidden");
+        dropdownIcon?.classList.remove("rotate-180");
+      }, 2000);
+    } catch (error) {
+      console.error("Error al copiar:", error);
+      const btnText = copyBtn.querySelector("p");
+      if (btnText) {
+        btnText.textContent = t("user.error");
+        setTimeout(() => {
+          btnText.textContent = t("user.copyImage");
+        }, 2000);
+      }
+    }
+  }
+
+  async function handleDownloadImage() {
+    if (!downloadBtn || !statsCard) return;
+
+    try {
+      const btnText = downloadBtn.querySelector("p");
+      const originalText = btnText?.textContent || t("user.downloadImage");
+      if (btnText) btnText.textContent = t("user.downloading");
+
+      // Obtener username para el nombre del archivo
+      const username =
+        new URL(window.location.href).searchParams.get("u") || "user";
+
+      // Capturar imagen en formato JPEG
+      const capture = await captureElementAsImage(statsCard, {
+        format: ImageFormat.JPEG,
+        backgroundColor: "#000000",
+      });
+
+      // Descargar
+      const result = await downloadImage(
+        capture.blob,
+        `hive-stats-${username}`,
+        ImageFormat.JPEG
+      );
+
+      // Actualizar UI según resultado
+      if (btnText) {
+        btnText.textContent =
+          result.type === "success" ? t("user.downloaded") : t("user.error");
+      }
+
+      // Restaurar después de 2 segundos
+      setTimeout(() => {
+        if (btnText) btnText.textContent = originalText;
+        shareMenu?.classList.add("hidden");
+        dropdownIcon?.classList.remove("rotate-180");
+      }, 2000);
+    } catch (error) {
+      console.error("Error al descargar:", error);
+      const btnText = downloadBtn.querySelector("p");
+      if (btnText) {
+        btnText.textContent = t("user.error");
+        setTimeout(() => {
+          btnText.textContent = t("user.downloadImage");
+        }, 2000);
+      }
+    }
+  }
+
+  // Agregar event listeners
+  copyBtn?.addEventListener("click", handleCopyImage);
+  downloadBtn?.addEventListener("click", handleDownloadImage);
+
+  function animateCounter(
+    element: HTMLElement,
+    targetValue: number,
+    duration: number,
+    formatter?: (val: number) => string
+  ) {
+    const obj = { value: 0 };
+    gsap.to(obj, {
+      value: targetValue,
+      duration: duration,
+      ease: "power2.out",
+      onUpdate: () => {
+        if (formatter) {
+          element.textContent = formatter(obj.value);
+        } else {
+          element.textContent = Math.floor(obj.value).toLocaleString("en-US");
+        }
+      },
+      onComplete: () => {
+        // Achievement effect
+        element.classList.add("achievement-bounce");
+        element.classList.add("achievement-glow");
+        setTimeout(() => {
+          element.classList.remove("achievement-bounce");
+          element.classList.remove("achievement-glow");
+        }, 1500);
+      },
+    });
+  }
+
+  function animatePercentage(element: HTMLElement, targetValue: number) {
+    const obj = { value: 0 };
+    gsap.to(obj, {
+      value: targetValue,
+      duration: 1.5,
+      ease: "power2.out",
+      onUpdate: () => {
+        element.textContent = `${obj.value.toFixed(6)}%`;
+      },
+      onComplete: () => {
+        element.classList.add("achievement-bounce");
+        element.classList.add("achievement-glow");
+        setTimeout(() => {
+          element.classList.remove("achievement-bounce");
+          element.classList.remove("achievement-glow");
+        }, 1500);
+      },
+    });
+  }
+
+  async function loadUserStats() {
+    const url = new URL(window.location.href);
+    const username = url.searchParams.get("u");
+
+    if (!username) {
+      showError();
+      return;
+    }
+
+    try {
+      const [globalStats, userStats] = await Promise.all([
+        getGlobalTransactionStats(),
+        getUserOperations(username),
+      ]);
+
+      const globalTotal = globalStats.reduce(
+        (sum, year) => sum + year.trx_count,
+        0
+      );
+      const userTotal = userStats.total_operations;
+      const percentage = (userTotal / globalTotal) * 100;
+
+      // Update avatar
+      const avatarImg = document.getElementById(
+        "userAvatar"
+      ) as HTMLImageElement;
+      if (avatarImg) {
+        avatarImg.src = `https://images.hive.blog/u/${username}/avatar/medium`;
+      }
+
+      // Update page title
+      document.title = `@${username} - Ops by Hive`;
+
+      // Show content first
+      showContent();
+
+      // Start animation sequence
+      const timeline = gsap.timeline();
+
+      // 1. Animate avatar
+      timeline.to("#userAvatar", {
+        opacity: 1,
+        scale: 1,
+        duration: 0.6,
+        ease: "back.out(1.7)",
+      });
+
+      // 2. Animate username
+      timeline.to(
+        "#username",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: "power2.out",
+          onStart: () => {
+            const usernameEl = document.getElementById("username");
+            if (usernameEl) {
+              usernameEl.textContent = `@${username}`;
+              usernameEl.style.transform = "translateY(-10px)";
+            }
+          },
+        },
+        "-=0.2"
+      );
+
+      // 3. Animate user operations counter
+      timeline.add(() => {
+        const userOpsEl = document.getElementById("userOperations");
+        if (userOpsEl) {
+          animateCounter(userOpsEl, userTotal, 2);
+        }
+      }, "+=0.3");
+
+      // 4. Animate percentage
+      timeline.add(() => {
+        const percentageEl = document.getElementById("percentage");
+        if (percentageEl) {
+          animatePercentage(percentageEl, percentage);
+        }
+      }, "-=1");
+
+      // 5. Animate global total
+      timeline.add(() => {
+        const globalTotalEl = document.getElementById("globalTotal");
+        if (globalTotalEl) {
+          const obj = { value: 0 };
+          gsap.to(obj, {
+            value: globalTotal,
+            duration: 1.8,
+            ease: "power2.out",
+            onUpdate: () => {
+              globalTotalEl.textContent = formatToBillions(obj.value);
+            },
+            onComplete: () => {
+              globalTotalEl.classList.add("achievement-bounce");
+              globalTotalEl.classList.add("achievement-glow");
+              setTimeout(() => {
+                globalTotalEl.classList.remove("achievement-bounce");
+                globalTotalEl.classList.remove("achievement-glow");
+              }, 1500);
+            },
+          });
+        }
+      }, "-=1.2");
+
+      // 6. Animate Hive logo
+      timeline.to("#hiveLogo", {
+        opacity: 0.8,
+        duration: 0.8,
+        ease: "power2.out",
+      }, "-=0.5");
+    } catch (error) {
+      console.error("Error loading user stats:", error);
+      showError();
+    }
+  }
+
+  function showContent() {
+    loadingState?.classList.add("hidden");
+    errorState?.classList.add("hidden");
+    contentState?.classList.remove("hidden");
+  }
+
+  function showError() {
+    loadingState?.classList.add("hidden");
+    contentState?.classList.add("hidden");
+    errorState?.classList.remove("hidden");
+  }
+
+  // Load stats when DOM is ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadUserStats);
+  } else {
+    loadUserStats();
+  }
+</script>

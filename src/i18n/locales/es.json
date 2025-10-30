@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "backToHome": "Volver al inicio",
+    "searchAnotherUser": "Buscar otro usuario"
+  },
+  "home": {
+    "totalOperationsLabel": "Total de Operaciones en Hive",
+    "allTimeOperations": "Operaciones de blockchain de todos los tiempos",
+    "questionTitle": "¿Quieres saber cuántas operaciones tú has realizado?",
+    "ctaButton": "Sí, quiero"
+  },
+  "modal": {
+    "title": "Ingresa tu username de Hive",
+    "placeholder": "ejemplo: alice",
+    "searchButton": "Buscar",
+    "errorEmpty": "Por favor ingresa un username",
+    "errorTooShort": "El username debe tener al menos 3 caracteres"
+  },
+  "user": {
+    "loading": "Cargando estadísticas...",
+    "notFound": "Usuario no encontrado",
+    "share": "Compartir",
+    "copyImage": "Copiar imagen",
+    "copyImageDesc": "Para pegar en redes sociales",
+    "downloadImage": "Descargar imagen",
+    "downloadImageDesc": "Guardar en tu dispositivo",
+    "totalOperations": "Total de operaciones que has realizado en Hive",
+    "partOf": "Formas parte del",
+    "mostActive": "más activo de toda la historia de la red",
+    "hiveExceeds": "Hive ya supera",
+    "operations": "de operaciones",
+    "copying": "Generando...",
+    "copied": "¡Copiado!",
+    "downloading": "Generando...",
+    "downloaded": "¡Descargado!",
+    "unsupported": "No soportado",
+    "error": "Error"
+  }
+}

@@ -1,0 +1,31 @@
+---
+import GlobalStats from "@/components/GlobalStats.astro";
+import UserPrompt from "@/components/UserPrompt.astro";
+import UsernameModal from "@/components/UsernameModal.astro";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import Layout from "@/layouts/Layout.astro";
+import { getLangFromUrl } from "@/i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+---
+
+<Layout>
+  <!-- Language Switcher - Fixed top right -->
+  <div class="fixed top-6 right-6 z-50">
+    <LanguageSwitcher currentLang={lang} />
+  </div>
+
+  <div
+    class="h-screen w-full flex flex-col justify-between items-center p-6 md:p-8 lg:p-12 overflow-hidden"
+  >
+    <div class="flex-1 flex items-center justify-center w-full">
+      <div class="max-w-5xl w-full">
+        <GlobalStats />
+      </div>
+    </div>
+    <div class="shrink-0 pb-8 md:pb-12 lg:pb-16 w-full">
+      <UserPrompt />
+    </div>
+  </div>
+  <UsernameModal />
+</Layout>

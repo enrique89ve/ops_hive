@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+	--color-hive-red: #e31337;
+	--color-hive-black: #000000;
+	--color-hive-white: #ffffff;
+
+	--color-red-500: var(--color-hive-red);
+	--color-red-400: #ff4458;
+	--color-black: var(--color-hive-black);
+	--color-white: var(--color-hive-white);
+
+	--font-sora: "Sora Variable", sans-serif;
+	--font-sans: var(--font-sora);
+}
