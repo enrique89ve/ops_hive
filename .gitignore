@@ -32,3 +32,6 @@ pnpm-debug.log*
 # markdown files (except README)
 *.md
 !README.md
+
+# vercel
+.vercel/
