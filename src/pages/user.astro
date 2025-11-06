@@ -9,7 +9,7 @@ const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 
 // Get username from URL for OG image
-const username = Astro.url.searchParams.get("u");
+const username = Astro.url.searchParams.get("user");
 const ogImage = username
 	? `${Astro.url.origin}/api/og/${username}.png`
 	: undefined;
@@ -412,7 +412,7 @@ const pageDescription = username
 
       // Obtener username para el nombre del archivo
       const username =
-        new URL(window.location.href).searchParams.get("u") || "user";
+        new URL(window.location.href).searchParams.get("user") || "user";
 
       // Capturar imagen en formato JPEG
       const capture = await captureElementAsImage(statsCard, {
@@ -646,7 +646,7 @@ const pageDescription = username
 
   async function loadUserStats() {
     const url = new URL(window.location.href);
-    const username = url.searchParams.get("u");
+    const username = url.searchParams.get("user");
 
     if (!username) {
       showError();

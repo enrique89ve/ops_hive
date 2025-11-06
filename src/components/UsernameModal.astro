@@ -65,7 +65,24 @@ const t = useTranslations(lang);
   ) as HTMLInputElement;
   const errorMessage = document.getElementById("errorMessage");
 
-  function openModal() {
+  let redirectTarget = "user"; // Default redirect target
+
+  function openModal(event?: CustomEvent) {
+    // Check if redirect target is specified in event detail
+    if (event && event.detail && event.detail.redirectTo) {
+      redirectTarget = event.detail.redirectTo;
+    } else {
+      // Detect current page from pathname
+      const pathname = window.location.pathname;
+      if (pathname.includes("/fees")) {
+        redirectTarget = "fees";
+      } else if (pathname.includes("/user")) {
+        redirectTarget = "user";
+      } else {
+        redirectTarget = "user"; // Default fallback
+      }
+    }
+
     modal?.classList.remove("hidden");
     modal?.classList.add("flex");
     usernameInput?.focus();
@@ -115,10 +132,14 @@ const t = useTranslations(lang);
       return;
     }
 
-    // Navigate to user page with username as query param, respecting current language
+    // Navigate to target page with username as query param, respecting current language
     const currentLang = getLangFromUrl(new URL(window.location.href));
-    const userPath = buildLocalizedPath("/user", currentLang, `?u=${encodeURIComponent(username)}`);
-    window.location.href = userPath;
+    const targetPath = buildLocalizedPath(
+      `/${redirectTarget}`,
+      currentLang,
+      `?user=${encodeURIComponent(username)}`
+    );
+    window.location.href = targetPath;
   });
 
   document.addEventListener("keydown", (e) => {

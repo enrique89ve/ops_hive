@@ -6,46 +6,71 @@ import LanguageSwitcher from "./LanguageSwitcher.astro";
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const homeUrl = lang === DEFAULT_LOCALE ? "/" : `${getLocalePrefix(lang)}/`;
+
+// Get username from URL if available
+const url = new URL(Astro.request.url);
+const username = url.searchParams.get("user") || "";
 ---
 
 <nav
   class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/5"
 >
   <div
-    class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-16 flex items-center justify-between"
+    class="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-14 md:h-16 flex items-center justify-between gap-2"
   >
-    <!-- Back Button -->
-    <a
-      href={homeUrl}
-      class="group flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white/70 hover:text-white transition-colors"
-    >
-      <svg
-        class="w-4 h-4 transition-transform group-hover:-translate-x-1"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+    <!-- Left side navigation -->
+    <div class="flex items-center gap-2 md:gap-4">
+      <!-- Back Button -->
+      <a
+        href={homeUrl}
+        class="group flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-semibold text-white/70 hover:text-white transition-colors"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M15 19l-7-7 7-7"></path>
-      </svg>
-      <span>{t("nav.backToHome")}</span>
-    </a>
+        <svg
+          class="w-3.5 h-3.5 md:w-4 md:h-4 transition-transform group-hover:-translate-x-1"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"></path>
+        </svg>
+        <span class="hidden sm:inline">{t("nav.backToHome")}</span>
+        <span class="sm:hidden">Back to home</span>
+      </a>
+
+      <!-- Navigation Links -->
+      <div class="hidden md:flex items-center gap-2">
+        <a
+          href={`/user?user=${username}`}
+          class="px-4 py-2 text-sm font-semibold text-white/70 hover:text-white transition-colors"
+        >
+          {t("nav.user")}
+        </a>
+        <button
+          id="navFeesBtn"
+          class="px-4 py-2 text-sm font-semibold text-white/70 hover:text-white transition-colors"
+          data-username={username}
+        >
+          {t("nav.fees")}
+        </button>
+      </div>
+    </div>
 
     <!-- Right side buttons -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-1.5 md:gap-3">
       <!-- Language Switcher -->
       <LanguageSwitcher currentLang={lang} />
 
       <!-- Search Another User Button -->
       <button
         id="navOpenModalBtn"
-        class="group flex items-center gap-2 px-5 py-2 text-sm font-bold text-white rounded-full transition-all duration-300 hover:scale-[1.02] bg-gradient-to-r from-red-500/80 to-red-600/80 hover:from-red-500 hover:to-red-600 shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30"
+        class="group flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-1.5 md:py-2 text-xs md:text-sm font-bold text-white rounded-full transition-all duration-300 hover:scale-[1.02] bg-linear-to-r from-red-500/80 to-red-600/80 hover:from-red-500 hover:to-red-600 shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30"
       >
         <svg
-          class="w-4 h-4"
+          class="w-3.5 h-3.5 md:w-4 md:h-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -56,7 +81,8 @@ const homeUrl = lang === DEFAULT_LOCALE ? "/" : `${getLocalePrefix(lang)}/`;
             stroke-width="2"
             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
-        <span>{t("nav.searchAnotherUser")}</span>
+        <span class="hidden sm:inline">{t("nav.searchAnotherUser")}</span>
+        <span class="sm:hidden">Search another user</span>
       </button>
     </div>
   </div>
@@ -64,9 +90,25 @@ const homeUrl = lang === DEFAULT_LOCALE ? "/" : `${getLocalePrefix(lang)}/`;
 
 <script>
   const navOpenModalBtn = document.getElementById("navOpenModalBtn");
+  const navFeesBtn = document.getElementById("navFeesBtn");
 
   navOpenModalBtn?.addEventListener("click", () => {
     const event = new CustomEvent("openUsernameModal");
     window.dispatchEvent(event);
+  });
+
+  navFeesBtn?.addEventListener("click", () => {
+    const username = navFeesBtn.getAttribute("data-username");
+
+    if (username && username.trim() !== "") {
+      // If username exists, navigate to fees page
+      window.location.href = `/fees?user=${username}`;
+    } else {
+      // If no username, open modal to enter username
+      const event = new CustomEvent("openUsernameModal", {
+        detail: { redirectTo: "fees" },
+      });
+      window.dispatchEvent(event);
+    }
   });
 </script>

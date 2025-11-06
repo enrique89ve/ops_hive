@@ -62,9 +62,6 @@ const { currentLang } = Astro.props;
 </div>
 
 <script>
-	import { switchLocale } from "@/i18n/url-utils";
-	import { isValidLocale, type Locale } from "@/i18n/config";
-
 	const langBtn = document.getElementById("langBtn");
 	const langMenu = document.getElementById("langMenu");
 	const langDropdownIcon = document.getElementById("langDropdownIcon");
@@ -87,18 +84,28 @@ const { currentLang } = Astro.props;
 	langLinks?.forEach((button) => {
 		button.addEventListener("click", () => {
 			const targetLang = button.getAttribute("data-lang");
-
-			// Validate locale before switching
-			if (!targetLang || !isValidLocale(targetLang)) {
-				console.error(`[LanguageSwitcher] Invalid locale: ${targetLang}`);
-				return;
-			}
+			if (!targetLang) return;
 
 			const currentUrl = new URL(window.location.href);
-			const newUrl = switchLocale(currentUrl, targetLang as Locale);
+			const currentPath = currentUrl.pathname;
+			const searchParams = currentUrl.search;
 
-			// Navigate with full page reload
-			window.location.href = newUrl;
+			// Strip current locale prefix if exists
+			let basePath = currentPath;
+			if (basePath.startsWith('/es/')) {
+				basePath = basePath.substring(3);
+			} else if (basePath === '/es') {
+				basePath = '/';
+			}
+
+			// Build new URL with target locale
+			let newPath = basePath;
+			if (targetLang === 'es') {
+				newPath = '/es' + basePath;
+			}
+
+			// Navigate with query params preserved
+			window.location.href = newPath + searchParams;
 		});
 	});
 </script>

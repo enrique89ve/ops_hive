@@ -1,7 +1,9 @@
 {
   "nav": {
     "backToHome": "Volver al inicio",
-    "searchAnotherUser": "Buscar otro usuario"
+    "searchAnotherUser": "Buscar otro usuario",
+    "user": "Usuario",
+    "fees": "Comisiones"
   },
   "home": {
     "totalOperationsLabel": "Total de Operaciones en Hive",
@@ -35,5 +37,26 @@
     "downloaded": "¡Descargado!",
     "unsupported": "No soportado",
     "error": "Error"
+  },
+  "fees": {
+    "pageTitle": "Comparación de Comisiones",
+    "pageDescription": "Descubre cuánto habrías gastado en comisiones de transacción en otras blockchains comparado con el modelo sin comisiones de Hive.",
+    "heroTitle": "Comparación de Comisiones",
+    "heroDescription": "Descubre cuánto habrías gastado en comisiones de transacción en otras blockchains comparado con el modelo sin comisiones de Hive.",
+    "analyzing": "Analizando",
+    "totalOperations": "Total de Operaciones en Hive",
+    "comparisonTitle": "Lo Que Habrías Pagado",
+    "calculating": "Calculando comisiones...",
+    "hiveBenefitsTitle": "Hive = $0 en Comisiones",
+    "hiveBenefitsSubtitle": "Para siempre. Sin costos ocultos.",
+    "totalSaved": "Total Ahorrado en Hive",
+    "operations": "operaciones",
+    "wouldHaveSpent": "Lo que habrías gastado en otras blockchains:",
+    "butOnHive": "Pero gastaste en Hive:",
+    "hiveFee": "Comisiones en Hive",
+    "loading": "Calculando comisiones...",
+    "error": "Error al cargar comparación de comisiones",
+    "share": "Compartir mis ahorros",
+    "shareDescription": "Descargar y compartir en redes sociales"
   }
 }

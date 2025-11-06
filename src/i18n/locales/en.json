@@ -1,7 +1,9 @@
 {
   "nav": {
     "backToHome": "Back to home",
-    "searchAnotherUser": "Search another user"
+    "searchAnotherUser": "Search another user",
+    "user": "User",
+    "fees": "Fees"
   },
   "home": {
     "totalOperationsLabel": "Total Operations on Hive",
@@ -35,5 +37,26 @@
     "downloaded": "Downloaded!",
     "unsupported": "Not supported",
     "error": "Error"
+  },
+  "fees": {
+    "pageTitle": "Fee Comparison",
+    "pageDescription": "Discover how much you would have spent on transaction fees on other blockchains compared to Hive's feeless model.",
+    "heroTitle": "Fee Comparison",
+    "heroDescription": "Discover how much you would have spent on transaction fees on other blockchains compared to Hive's feeless model.",
+    "analyzing": "Analyzing",
+    "totalOperations": "Total Operations on Hive",
+    "comparisonTitle": "What You Would Have Paid",
+    "calculating": "Calculating fees...",
+    "hiveBenefitsTitle": "Hive = $0 in Fees",
+    "hiveBenefitsSubtitle": "Forever. No hidden costs.",
+    "totalSaved": "Total Saved on Hive",
+    "operations": "operations",
+    "wouldHaveSpent": "What you would have spent on other blockchains:",
+    "butOnHive": "But you spent on Hive:",
+    "hiveFee": "Fees on Hive",
+    "loading": "Calculating fees...",
+    "error": "Error loading fee comparison",
+    "share": "Share my savings",
+    "shareDescription": "Download and share on social media"
   }
 }
